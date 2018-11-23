@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t "go-land/user-service:1.0.0" .
+docker build -f Dockerfile -t "go-land/user-service:1.0.0" ../../
