@@ -21,11 +21,12 @@ RUN go build -o /go/bin/user-service .
 ########################################################################################################################
 # run script
 ########################################################################################################################
-#ADD user-service/docker/run.sh run.sh
-#ADD user-service/docker/loop.sh loop.sh
-#RUN chmod +x run.sh loop.sh
+ADD user-service/docker/run.sh run.sh
+ADD user-service/docker/loop.sh loop.sh
+RUN chmod +x run.sh loop.sh
 
-ENTRYPOINT ["/go/bin/user-service"]
+WORKDIR /go/src/github.com/go-land/user-service
+CMD ./run.sh
 
-#CMD ./run.sh
 #CMD ./loop.sh
+#ENTRYPOINT ["/go/bin/user-service"]
