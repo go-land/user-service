@@ -1,8 +1,8 @@
 package main
 
 import (
-	"algorithms/dao"
 	"fmt"
+	"github.com/go-land/user-service/dao"
 	"github.com/gorilla/mux"
 	"net/http"
 )

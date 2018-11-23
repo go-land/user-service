@@ -1,8 +1,8 @@
 package main
 
 import (
-	"algorithms/config"
 	"context"
+	"github.com/go-land/user-service/config"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
