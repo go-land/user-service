@@ -2,7 +2,12 @@
 # Build user-service
 ########################################################################################################################
 FROM golang as go-builder
+
+###################################
+# Get user-service dependencies
+###################################
 RUN go get github.com/gorilla/mux
+
 ADD user-service /go/src/github.com/go-land/user-service
 WORKDIR /go/src/github.com/go-land/user-service
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o user-service .

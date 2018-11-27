@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/go-land/user-service/config"
+	"github.com/go-land/user-service/handlers"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -46,7 +47,7 @@ func main() {
 func createRouter() http.Handler {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/users/{name}", GetUserInfo)
+	router.HandleFunc("/users/{name}", handlers.GetUserInfo)
 	http.Handle("/", router)
 	return router
 }
