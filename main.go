@@ -12,10 +12,6 @@ import (
 )
 
 func main() {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/users/{name}", GetUserInfo)
-	http.Handle("/", router)
 
 	envConfig := config.NewEnvConfig()
 
@@ -27,7 +23,7 @@ func main() {
 		WriteTimeout: time.Second * 10,
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Second * 60,
-		Handler:      router,
+		Handler:      createRouter(),
 	}
 
 	log.Printf("user-service started at %s\n", envConfig.Port)
@@ -36,6 +32,26 @@ func main() {
 		srv.ListenAndServe()
 	}()
 
+	waitForInterruptionSignal()
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
+
+	log.Println("shutting down")
+	os.Exit(0)
+}
+
+func createRouter() http.Handler {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/users/{name}", GetUserInfo)
+	http.Handle("/", router)
+	return router
+}
+
+func waitForInterruptionSignal() {
 	channelSignal := make(chan os.Signal)
 
 	signal.Notify(channelSignal, os.Interrupt)
@@ -43,16 +59,4 @@ func main() {
 	signalValue := <-channelSignal
 
 	log.Printf("Signal %v received\n", signalValue)
-
-	// Create a deadline to wait for.
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-	// Doesn't block if no connections, but will otherwise wait
-	// until the timeout deadline.
-	srv.Shutdown(ctx)
-	// Optionally, you could run srv.Shutdown in a goroutine and block on
-	// <-ctx.Done() if your application should wait for other services
-	// to finalize based on context cancellation.
-	log.Println("shutting down")
-	os.Exit(0)
 }

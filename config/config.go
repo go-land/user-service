@@ -1,5 +1,7 @@
 package config
 
+import "os"
+
 type EnvConfig struct {
 	Port    string
 	Profile string
@@ -7,7 +9,7 @@ type EnvConfig struct {
 
 func NewEnvConfig() *EnvConfig {
 	return &EnvConfig{
-		Port:    "7070", //os.Getenv("PORT"),
-		Profile: "dev",  //os.Getenv("PROFILE"),
+		Port:    os.Getenv("PORT"),
+		Profile: os.Getenv("PROFILE"),
 	}
 }
