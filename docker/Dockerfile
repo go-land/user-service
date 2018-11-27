@@ -1,32 +1,21 @@
-FROM golang:alpine
-MAINTAINER Maksym Stepanenko <stepanenkomaksi@gmail.com>
-
 ########################################################################################################################
-# Alpine
+# Build user-service
 ########################################################################################################################
-RUN apk update && apk upgrade && apk add git bash
-
-########################################################################################################################
-# dependencies
-########################################################################################################################
+FROM golang as go-builder
 RUN go get github.com/gorilla/mux
-
-########################################################################################################################
-# user-service
-########################################################################################################################
 ADD user-service /go/src/github.com/go-land/user-service
 WORKDIR /go/src/github.com/go-land/user-service
-RUN go build -o /go/bin/user-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o user-service .
 
 ########################################################################################################################
-# run script
+# install user-service
 ########################################################################################################################
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates bash
+RUN mkdir -p /go
+WORKDIR /go
+COPY --from=go-builder /go/src/github.com/go-land/user-service .
 ADD user-service/docker/run.sh run.sh
 ADD user-service/docker/loop.sh loop.sh
 RUN chmod +x run.sh loop.sh
-
-WORKDIR /go/src/github.com/go-land/user-service
 CMD ./run.sh
-
-#CMD ./loop.sh
-#ENTRYPOINT ["/go/bin/user-service"]
