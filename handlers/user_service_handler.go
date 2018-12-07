@@ -6,18 +6,37 @@ import (
 )
 
 type UserServiceImpl struct {
-	Users map[string]*user.User
+	users map[string]*user.User
 }
 
 func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAllRequest) (*user.UserResponse, error) {
 
 	var usersData []*user.User
 
-	for _, value := range service.Users {
+	for _, value := range service.users {
 		usersData = append(usersData, value)
 	}
 
 	return &user.UserResponse{
 		Users: usersData,
 	}, nil
+}
+
+func NewUserServiceHandler() *UserServiceImpl {
+
+	userHandler := UserServiceImpl{}
+
+	userHandler.users = make(map[string]*user.User)
+
+	userHandler.users["maksym"] = &user.User{
+		FirstName: "Maksym",
+		LastName:  "Stepanenko",
+	}
+
+	userHandler.users["olesia"] = &user.User{
+		FirstName: "Olesia",
+		LastName:  "Stepanenko",
+	}
+
+	return &userHandler
 }

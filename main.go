@@ -25,7 +25,7 @@ func main() {
 	server := grpc.NewServer()
 
 	// Register our service with the gRPC server.
-	user.RegisterUserServiceServer(server, createUserServiceHandler())
+	user.RegisterUserServiceServer(server, handlers.NewUserServiceHandler())
 
 	// Register reflection service on gRPC server.
 	reflection.Register(server)
@@ -35,23 +35,4 @@ func main() {
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
-}
-
-func createUserServiceHandler() *handlers.UserServiceImpl {
-
-	userHandler := handlers.UserServiceImpl{}
-
-	userHandler.Users = make(map[string]*user.User)
-
-	userHandler.Users["maksym"] = &user.User{
-		FirstName: "Maksym",
-		LastName:  "Stepanenko",
-	}
-
-	userHandler.Users["olesia"] = &user.User{
-		FirstName: "Olesia",
-		LastName:  "Stepanenko",
-	}
-
-	return &userHandler
 }
