@@ -1,6 +1,6 @@
-default: build
-
-.PHONY: proto build run
+########################################################################################################################
+# Constants
+########################################################################################################################
 
 SERVICE_NAME=user-service
 
@@ -18,16 +18,32 @@ GIT_COMMIT = $(strip $(shell git rev-parse --short HEAD))
 DOCKER_IMAGE ?= go-land/$(SERVICE_NAME)
 DOCKER_TAG = $(CODE_VERSION)
 
+########################################################################################################################
+# Commands
+########################################################################################################################
+
+.PHONY: default build proto install deploy docker_build docker_push run output
+
+default: build
+
 proto:
 	protoc --proto_path=${GOPATH}/src:. --go_out=plugins=grpc:. proto/*.proto
 
+install:
+	go get -t -v ./...
+
+# Build docker image
 build: proto docker_build output
+
+# Build and push Docker image
+deploy: proto docker_build docker_push output
 
 docker_build:
 	@docker build \
 		--build-arg VCS_REF=$(GIT_COMMIT) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		--build-arg VERSION=$(CODE_VERSION) \
+		--build-arg SERVICE_NAME=$(SERVICE_NAME) \
 		-f docker/Dockerfile -t $(DOCKER_IMAGE):$(DOCKER_TAG) ../
 
 docker_push:

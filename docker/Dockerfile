@@ -3,35 +3,39 @@
 ########################################################################################################################
 FROM golang as go-builder
 
-###################################
-# Get hello-service dependencies
-###################################
+ARG SERVICE_NAME
+
+ADD user-service /go/src/github.com/go-land/$SERVICE_NAME
+WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
+
+# Install all dependencies
+#RUN go get -v ./...
 RUN go get -u google.golang.org/grpc
 
-ADD user-service /go/src/github.com/go-land/user-service
-WORKDIR /go/src/github.com/go-land/user-service
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o user-service .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $SERVICE_NAME .
 
 ########################################################################################################################
-# install hello-service
+# install user-service
 ########################################################################################################################
 FROM alpine:latest
 MAINTAINER Maksym Stepanenko <stepanenkomaksi@gmail.com>
 RUN apk --no-cache add ca-certificates bash curl
 RUN mkdir -p /go
 WORKDIR /go
-COPY --from=go-builder /go/src/github.com/go-land/user-service .
-ADD user-service/docker/run.sh run.sh
-ADD user-service/docker/loop.sh loop.sh
-RUN chmod +x run.sh loop.sh
 
-# Runtime arguments
+ARG SERVICE_NAME
+ARG VERSION
 ARG VCS_REF
 ARG BUILD_DATE
-ARG VERSION
 
+LABEL com.max.service=$SERVICE_NAME
+LABEL com.max.version=$VERSION
 LABEL com.max.vcs-ref=$VCS_REF
 LABEL com.max.build-date=$BUILD_DATE
-LABEL com.max.version=$VERSION
+
+COPY --from=go-builder /go/src/github.com/go-land/$SERVICE_NAME .
+ADD $SERVICE_NAME/docker/run.sh run.sh
+ADD $SERVICE_NAME/docker/loop.sh loop.sh
+RUN chmod +x run.sh loop.sh
 
 CMD ./run.sh
