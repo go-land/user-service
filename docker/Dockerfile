@@ -16,6 +16,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o user-service .
 # install hello-service
 ########################################################################################################################
 FROM alpine:latest
+MAINTAINER Maksym Stepanenko <stepanenkomaksi@gmail.com>
 RUN apk --no-cache add ca-certificates bash curl
 RUN mkdir -p /go
 WORKDIR /go
@@ -23,4 +24,14 @@ COPY --from=go-builder /go/src/github.com/go-land/user-service .
 ADD user-service/docker/run.sh run.sh
 ADD user-service/docker/loop.sh loop.sh
 RUN chmod +x run.sh loop.sh
+
+# Runtime arguments
+ARG VCS_REF
+ARG BUILD_DATE
+ARG VERSION
+
+LABEL com.max.vcs-ref=$VCS_REF
+LABEL com.max.build-date=$BUILD_DATE
+LABEL com.max.version=$VERSION
+
 CMD ./run.sh
