@@ -2,6 +2,7 @@
 # Constants
 ########################################################################################################################
 
+SERVICE_NAMESPACE=go-land
 SERVICE_NAME=user-service
 
 # Get the version number from VERSION file.
@@ -18,11 +19,13 @@ GIT_COMMIT = $(strip $(shell git rev-parse --short HEAD))
 DOCKER_IMAGE ?= go-land/$(SERVICE_NAME)
 DOCKER_TAG = $(CODE_VERSION)
 
+CURRENT_DOCKER_CONTAINERS = $(strip $(shell docker ps -a -q --filter="label=com.max.namespace=go-land"))
+
 ########################################################################################################################
 # Commands
 ########################################################################################################################
 
-.PHONY: default build proto install deploy docker_build docker_push run output
+.PHONY: default build proto install deploy docker_build docker_push run stop clean output
 
 default: build
 
@@ -40,6 +43,7 @@ deploy: proto docker_build docker_push output
 
 docker_build:
 	@docker build \
+		--build-arg SERVICE_NAMESPACE=$(SERVICE_NAMESPACE) \
 		--build-arg VCS_REF=$(GIT_COMMIT) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
 		--build-arg VERSION=$(CODE_VERSION) \
@@ -48,14 +52,20 @@ docker_build:
 
 docker_push:
 	# Tag image as latest
-	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_IMAGE):latest
+	@docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_IMAGE):latest
 
 	# Push to DockerHub
-	docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_IMAGE):latest
+	@docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
+	@docker push $(DOCKER_IMAGE):latest
 
 run:
-	docker-compose -f docker-compose.yml -p dev_go up
+	@docker-compose -f docker-compose.yml -p dev_go up
+
+stop:
+	@docker stop $(CURRENT_DOCKER_CONTAINERS)
+
+clean:
+	@docker rm $(CURRENT_DOCKER_CONTAINERS)
 
 output:
 	@echo Docker Image: $(DOCKER_IMAGE):$(DOCKER_TAG)

@@ -22,6 +22,17 @@ func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAll
 	}, nil
 }
 
+func (service *UserServiceImpl) GetByName(ctx context.Context, request *user.GetByNameRequest) (*user.User, error) {
+
+	userName := request.Name
+
+	if singleUser, ok := service.users[userName]; ok {
+		return singleUser, nil
+	}
+
+	return nil, nil
+}
+
 func NewUserServiceHandler() *UserServiceImpl {
 
 	userHandler := UserServiceImpl{}

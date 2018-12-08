@@ -5,9 +5,16 @@ package user;
 service UserService {
     rpc GetAll (GetAllRequest) returns (UserResponse) {
     }
+
+    rpc GetByName (GetByNameRequest) returns (User) {
+    }
 }
 
 message GetAllRequest {
+}
+
+message GetByNameRequest {
+    string name = 1;
 }
 
 message User {

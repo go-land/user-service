@@ -30,6 +30,15 @@ func main() {
 	}
 
 	for _, singleUser := range resp.Users {
-		log.Printf("UfirstName: %s, lastName: %s\n", singleUser.FirstName, singleUser.LastName)
+		log.Printf("firstName: %s, lastName: %s\n", singleUser.FirstName, singleUser.LastName)
 	}
+
+	singleUser, getByNameErr := client.GetByName(context.Background(), &user.GetByNameRequest{
+		Name: "maksym",
+	})
+
+	if getByNameErr != nil {
+		log.Fatalf("Can't properly call %s.GetByName(...) %v", serviceName, getByNameErr)
+	}
+	log.Printf("GetByName: %s\n", singleUser)
 }

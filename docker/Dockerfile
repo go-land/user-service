@@ -27,11 +27,13 @@ ARG SERVICE_NAME
 ARG VERSION
 ARG VCS_REF
 ARG BUILD_DATE
+ARG SERVICE_NAMESPACE
 
 LABEL com.max.service=$SERVICE_NAME
 LABEL com.max.version=$VERSION
 LABEL com.max.vcs-ref=$VCS_REF
 LABEL com.max.build-date=$BUILD_DATE
+LABEL com.max.namespace=$SERVICE_NAMESPACE
 
 COPY --from=go-builder /go/src/github.com/go-land/$SERVICE_NAME .
 ADD $SERVICE_NAME/docker/run.sh run.sh
