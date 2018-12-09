@@ -9,8 +9,9 @@ ADD user-service /go/src/github.com/go-land/$SERVICE_NAME
 WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
 
 # Install all dependencies
-#RUN go get -v ./...
-RUN go get google.golang.org/grpc
+ADD $SERVICE_NAME/docker/get-dependencies.sh get-dependencies.sh
+RUN chmod +x get-dependencies.sh
+RUN bash get-dependencies.sh
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SERVICE_NAME .
 
