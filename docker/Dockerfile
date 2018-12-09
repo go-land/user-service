@@ -12,7 +12,7 @@ WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
 #RUN go get -v ./...
 RUN go get -u google.golang.org/grpc
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $SERVICE_NAME .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SERVICE_NAME .
 
 ########################################################################################################################
 # install user-service

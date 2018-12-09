@@ -3,10 +3,21 @@ syntax = "proto3";
 package user;
 
 service UserService {
+    // Queries
     rpc GetAll (GetAllRequest) returns (UserResponse) {
     }
 
     rpc GetByName (GetByNameRequest) returns (User) {
+    }
+
+    // Commands
+    rpc AddUser (User) returns (GenericResponse) {
+    }
+
+    rpc UpdateUser (User) returns (GenericResponse) {
+    }
+
+    rpc DeleteUser (User) returns (GenericResponse) {
     }
 }
 
@@ -18,10 +29,15 @@ message GetByNameRequest {
 }
 
 message User {
-    string firstName = 1;
-    string lastName = 2;
+    string alias = 1;
+    string firstName = 2;
+    string lastName = 3;
 }
 
 message UserResponse {
     repeated User users = 1;
+}
+
+message GenericResponse {
+    string Message = 1;
 }

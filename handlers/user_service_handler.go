@@ -33,6 +33,54 @@ func (service *UserServiceImpl) GetByName(ctx context.Context, request *user.Get
 	return nil, nil
 }
 
+func (service *UserServiceImpl) AddUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
+
+	if service.users[req.Alias] != nil {
+		return &user.GenericResponse{
+			Message: "User with alias " + req.Alias + " already exists",
+		}, nil
+	}
+
+	service.users[req.Alias] = req
+
+	return &user.GenericResponse{
+		Message: "Successfully added",
+	}, nil
+}
+
+func (service *UserServiceImpl) UpdateUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
+
+	if service.users[req.Alias] == nil {
+		return &user.GenericResponse{
+			Message: "Can't update user with alias " + req.Alias + ". Not found.",
+		}, nil
+	}
+
+	singleUser := service.users[req.Alias]
+	singleUser.Alias = req.Alias
+	singleUser.FirstName = req.FirstName
+	singleUser.LastName = req.LastName
+
+	service.users[singleUser.Alias] = singleUser
+
+	return &user.GenericResponse{
+		Message: "Successfully updated",
+	}, nil
+}
+
+func (service *UserServiceImpl) DeleteUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
+
+	if service.users[req.Alias] == nil {
+		return &user.GenericResponse{
+			Message: "Can't delete user with alias " + req.Alias + ". Not found.",
+		}, nil
+	}
+
+	return &user.GenericResponse{
+		Message: "User with alis " + req.Alias + " deleted.",
+	}, nil
+}
+
 func NewUserServiceHandler() *UserServiceImpl {
 
 	userHandler := UserServiceImpl{}
@@ -40,11 +88,13 @@ func NewUserServiceHandler() *UserServiceImpl {
 	userHandler.users = make(map[string]*user.User)
 
 	userHandler.users["maksym"] = &user.User{
+		Alias:     "maksym",
 		FirstName: "Maksym",
 		LastName:  "Stepanenko",
 	}
 
 	userHandler.users["olesia"] = &user.User{
+		Alias:     "olesia",
 		FirstName: "Olesia",
 		LastName:  "Stepanenko",
 	}
