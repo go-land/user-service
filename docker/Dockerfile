@@ -10,7 +10,7 @@ WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
 
 # Install all dependencies
 #RUN go get -v ./...
-RUN go get -u google.golang.org/grpc
+RUN go get google.golang.org/grpc
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SERVICE_NAME .
 
@@ -20,8 +20,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SER
 FROM alpine:latest
 MAINTAINER Maksym Stepanenko <stepanenkomaksi@gmail.com>
 RUN apk --no-cache add ca-certificates bash curl
-RUN mkdir -p /go
-WORKDIR /go
 
 ARG SERVICE_NAME
 ARG VERSION
@@ -35,7 +33,10 @@ LABEL com.max.vcs-ref=$VCS_REF
 LABEL com.max.build-date=$BUILD_DATE
 LABEL com.max.namespace=$SERVICE_NAMESPACE
 
-COPY --from=go-builder /go/src/github.com/go-land/$SERVICE_NAME .
+RUN mkdir -p /services/$SERVICE_NAME
+WORKDIR /services/$SERVICE_NAME
+
+COPY --from=go-builder /go/src/github.com/go-land/$SERVICE_NAME/$SERVICE_NAME .
 ADD $SERVICE_NAME/docker/run.sh run.sh
 ADD $SERVICE_NAME/docker/loop.sh loop.sh
 RUN chmod +x run.sh loop.sh
