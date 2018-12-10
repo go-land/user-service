@@ -13,6 +13,9 @@ ADD $SERVICE_NAME/docker/get-dependencies.sh get-dependencies.sh
 RUN chmod +x get-dependencies.sh
 RUN bash get-dependencies.sh
 
+#RUN go get -u github.com/golang/dep/cmd/dep
+#RUN dep init && dep ensure
+
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SERVICE_NAME .
 
 ########################################################################################################################
@@ -20,7 +23,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SER
 ########################################################################################################################
 FROM alpine:latest
 MAINTAINER Maksym Stepanenko <stepanenkomaksi@gmail.com>
-RUN apk --no-cache add ca-certificates bash curl
+
+# Security related package, good to have.
+RUN apk --no-cache add ca-certificates
+RUN apk add bash curl
 
 ARG SERVICE_NAME
 ARG VERSION
