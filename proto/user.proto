@@ -32,6 +32,7 @@ message User {
     string alias = 1;
     string firstName = 2;
     string lastName = 3;
+    string job = 4;
 }
 
 message UserResponse {

@@ -114,12 +114,14 @@ func NewUserServiceHandler() *UserServiceImpl {
 		Alias:     "maksym",
 		FirstName: "Maksym",
 		LastName:  "Stepanenko",
+		Job:       "<undefined>",
 	}
 
 	userHandler.users["olesia"] = &user.User{
 		Alias:     "olesia",
 		FirstName: "Olesia",
 		LastName:  "Stepanenko",
+		Job:       "<undefined>",
 	}
 
 	return &userHandler
