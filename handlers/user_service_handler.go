@@ -1,13 +1,15 @@
 package handlers
 
 import (
+	"github.com/go-land/job-service/proto"
 	"github.com/go-land/user-service/proto"
 	"golang.org/x/net/context"
 	"log"
 )
 
 type UserServiceImpl struct {
-	users map[string]*user.User
+	users      map[string]*user.User
+	jobService job.JobServiceClient
 }
 
 func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAllRequest, resp *user.UserResponse) error {
@@ -16,8 +18,20 @@ func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAll
 
 	var usersData []*user.User
 
-	for _, value := range service.users {
-		usersData = append(usersData, value)
+	for _, singleUser := range service.users {
+
+		jobResponse, err := service.jobService.GetJob(ctx, &job.GetJobRequest{
+			Name: singleUser.Alias,
+		})
+
+		if err != nil {
+			log.Printf("Error calling job service: %v\n", err)
+			singleUser.Job = "<unknown>"
+		} else {
+			singleUser.Job = jobResponse.Job
+		}
+
+		usersData = append(usersData, singleUser)
 	}
 
 	resp.Users = usersData
@@ -104,9 +118,11 @@ func (service *UserServiceImpl) DeleteUser(ctx context.Context, req *user.User, 
 	return nil
 }
 
-func NewUserServiceHandler() *UserServiceImpl {
+func NewUserServiceHandler(jobClient job.JobServiceClient) *UserServiceImpl {
 
 	userHandler := UserServiceImpl{}
+
+	userHandler.jobService = jobClient
 
 	userHandler.users = make(map[string]*user.User)
 

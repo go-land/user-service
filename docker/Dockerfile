@@ -5,7 +5,7 @@ FROM golang as go-builder
 
 ARG SERVICE_NAME
 
-ADD user-service /go/src/github.com/go-land/$SERVICE_NAME
+ADD $SERVICE_NAME /go/src/github.com/go-land/$SERVICE_NAME
 WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
 
 # Install all dependencies
