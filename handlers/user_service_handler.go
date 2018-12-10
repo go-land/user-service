@@ -1,15 +1,18 @@
 package handlers
 
 import (
-	"context"
 	"github.com/go-land/user-service/proto"
+	"golang.org/x/net/context"
+	"log"
 )
 
 type UserServiceImpl struct {
 	users map[string]*user.User
 }
 
-func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAllRequest) (*user.UserResponse, error) {
+func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAllRequest, resp *user.UserResponse) error {
+
+	log.Println("GetAll called")
 
 	var usersData []*user.User
 
@@ -17,43 +20,57 @@ func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAll
 		usersData = append(usersData, value)
 	}
 
-	return &user.UserResponse{
-		Users: usersData,
-	}, nil
+	resp.Users = usersData
+
+	return nil
 }
 
-func (service *UserServiceImpl) GetByName(ctx context.Context, request *user.GetByNameRequest) (*user.User, error) {
+func (service *UserServiceImpl) GetByName(ctx context.Context, request *user.GetByNameRequest, resp *user.User) error {
+
+	log.Println("GetByName called")
 
 	userName := request.Name
 
 	if singleUser, ok := service.users[userName]; ok {
-		return singleUser, nil
+		resp = singleUser
 	}
 
-	return nil, nil
+	return nil
 }
 
-func (service *UserServiceImpl) AddUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
+func (service *UserServiceImpl) AddUser(ctx context.Context, req *user.User, resp *user.GenericResponse) error {
+
+	log.Println("AddUser called")
 
 	if service.users[req.Alias] != nil {
-		return &user.GenericResponse{
+
+		resp = &user.GenericResponse{
 			Message: "User with alias " + req.Alias + " already exists",
-		}, nil
+		}
+
+		return nil
 	}
 
 	service.users[req.Alias] = req
 
-	return &user.GenericResponse{
+	resp = &user.GenericResponse{
 		Message: "Successfully added",
-	}, nil
+	}
+
+	return nil
 }
 
-func (service *UserServiceImpl) UpdateUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
+func (service *UserServiceImpl) UpdateUser(ctx context.Context, req *user.User, resp *user.GenericResponse) error {
+
+	log.Println("UpdateUser called")
 
 	if service.users[req.Alias] == nil {
-		return &user.GenericResponse{
+
+		resp = &user.GenericResponse{
 			Message: "Can't update user with alias " + req.Alias + ". Not found.",
-		}, nil
+		}
+
+		return nil
 	}
 
 	singleUser := service.users[req.Alias]
@@ -63,22 +80,28 @@ func (service *UserServiceImpl) UpdateUser(ctx context.Context, req *user.User) 
 
 	service.users[singleUser.Alias] = singleUser
 
-	return &user.GenericResponse{
+	resp = &user.GenericResponse{
 		Message: "Successfully updated",
-	}, nil
-}
-
-func (service *UserServiceImpl) DeleteUser(ctx context.Context, req *user.User) (*user.GenericResponse, error) {
-
-	if service.users[req.Alias] == nil {
-		return &user.GenericResponse{
-			Message: "Can't delete user with alias " + req.Alias + ". Not found.",
-		}, nil
 	}
 
-	return &user.GenericResponse{
+	return nil
+}
+
+func (service *UserServiceImpl) DeleteUser(ctx context.Context, req *user.User, resp *user.GenericResponse) error {
+
+	log.Println("DeleteUser called")
+
+	if service.users[req.Alias] == nil {
+		resp = &user.GenericResponse{
+			Message: "Can't delete user with alias " + req.Alias + ". Not found.",
+		}
+		return nil
+	}
+
+	resp = &user.GenericResponse{
 		Message: "User with alis " + req.Alias + " deleted.",
-	}, nil
+	}
+	return nil
 }
 
 func NewUserServiceHandler() *UserServiceImpl {

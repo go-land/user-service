@@ -4,11 +4,15 @@
 package user
 
 import (
-	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	grpc "google.golang.org/grpc"
 	math "math"
+)
+
+import (
+	client "github.com/micro/go-micro/client"
+	server "github.com/micro/go-micro/server"
+	context "golang.org/x/net/context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -259,208 +263,125 @@ var fileDescriptor_d570e3e37e5899c5 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ client.Option
+var _ server.Option
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+// Client API for UserService service
 
-// UserServiceClient is the client API for UserService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type UserServiceClient interface {
 	// Queries
-	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*UserResponse, error)
-	GetByName(ctx context.Context, in *GetByNameRequest, opts ...grpc.CallOption) (*User, error)
+	GetAll(ctx context.Context, in *GetAllRequest, opts ...client.CallOption) (*UserResponse, error)
+	GetByName(ctx context.Context, in *GetByNameRequest, opts ...client.CallOption) (*User, error)
 	// Commands
-	AddUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error)
-	UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error)
-	DeleteUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error)
+	AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error)
+	UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error)
+	DeleteUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error)
 }
 
 type userServiceClient struct {
-	cc *grpc.ClientConn
+	c           client.Client
+	serviceName string
 }
 
-func NewUserServiceClient(cc *grpc.ClientConn) UserServiceClient {
-	return &userServiceClient{cc}
+func NewUserServiceClient(serviceName string, c client.Client) UserServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "user"
+	}
+	return &userServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
 }
 
-func (c *userServiceClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*UserResponse, error) {
+func (c *userServiceClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...client.CallOption) (*UserResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.GetAll", in)
 	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, "/user.UserService/GetAll", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) GetByName(ctx context.Context, in *GetByNameRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *userServiceClient) GetByName(ctx context.Context, in *GetByNameRequest, opts ...client.CallOption) (*User, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.GetByName", in)
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/user.UserService/GetByName", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) AddUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error) {
+func (c *userServiceClient) AddUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.AddUser", in)
 	out := new(GenericResponse)
-	err := c.cc.Invoke(ctx, "/user.UserService/AddUser", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) UpdateUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error) {
+func (c *userServiceClient) UpdateUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.UpdateUser", in)
 	out := new(GenericResponse)
-	err := c.cc.Invoke(ctx, "/user.UserService/UpdateUser", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) DeleteUser(ctx context.Context, in *User, opts ...grpc.CallOption) (*GenericResponse, error) {
+func (c *userServiceClient) DeleteUser(ctx context.Context, in *User, opts ...client.CallOption) (*GenericResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "UserService.DeleteUser", in)
 	out := new(GenericResponse)
-	err := c.cc.Invoke(ctx, "/user.UserService/DeleteUser", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserServiceServer is the server API for UserService service.
-type UserServiceServer interface {
+// Server API for UserService service
+
+type UserServiceHandler interface {
 	// Queries
-	GetAll(context.Context, *GetAllRequest) (*UserResponse, error)
-	GetByName(context.Context, *GetByNameRequest) (*User, error)
+	GetAll(context.Context, *GetAllRequest, *UserResponse) error
+	GetByName(context.Context, *GetByNameRequest, *User) error
 	// Commands
-	AddUser(context.Context, *User) (*GenericResponse, error)
-	UpdateUser(context.Context, *User) (*GenericResponse, error)
-	DeleteUser(context.Context, *User) (*GenericResponse, error)
+	AddUser(context.Context, *User, *GenericResponse) error
+	UpdateUser(context.Context, *User, *GenericResponse) error
+	DeleteUser(context.Context, *User, *GenericResponse) error
 }
 
-func RegisterUserServiceServer(s *grpc.Server, srv UserServiceServer) {
-	s.RegisterService(&_UserService_serviceDesc, srv)
+func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&UserService{hdlr}, opts...))
 }
 
-func _UserService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).GetAll(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/GetAll",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetAll(ctx, req.(*GetAllRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+type UserService struct {
+	UserServiceHandler
 }
 
-func _UserService_GetByName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByNameRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).GetByName(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/GetByName",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetByName(ctx, req.(*GetByNameRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func (h *UserService) GetAll(ctx context.Context, in *GetAllRequest, out *UserResponse) error {
+	return h.UserServiceHandler.GetAll(ctx, in, out)
 }
 
-func _UserService_AddUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).AddUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/AddUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).AddUser(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
+func (h *UserService) GetByName(ctx context.Context, in *GetByNameRequest, out *User) error {
+	return h.UserServiceHandler.GetByName(ctx, in, out)
 }
 
-func _UserService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).UpdateUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/UpdateUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).UpdateUser(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
+func (h *UserService) AddUser(ctx context.Context, in *User, out *GenericResponse) error {
+	return h.UserServiceHandler.AddUser(ctx, in, out)
 }
 
-func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(User)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).DeleteUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/user.UserService/DeleteUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DeleteUser(ctx, req.(*User))
-	}
-	return interceptor(ctx, in, info, handler)
+func (h *UserService) UpdateUser(ctx context.Context, in *User, out *GenericResponse) error {
+	return h.UserServiceHandler.UpdateUser(ctx, in, out)
 }
 
-var _UserService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "user.UserService",
-	HandlerType: (*UserServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetAll",
-			Handler:    _UserService_GetAll_Handler,
-		},
-		{
-			MethodName: "GetByName",
-			Handler:    _UserService_GetByName_Handler,
-		},
-		{
-			MethodName: "AddUser",
-			Handler:    _UserService_AddUser_Handler,
-		},
-		{
-			MethodName: "UpdateUser",
-			Handler:    _UserService_UpdateUser_Handler,
-		},
-		{
-			MethodName: "DeleteUser",
-			Handler:    _UserService_DeleteUser_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/user.proto",
+func (h *UserService) DeleteUser(ctx context.Context, in *User, out *GenericResponse) error {
+	return h.UserServiceHandler.DeleteUser(ctx, in, out)
 }

@@ -13,13 +13,32 @@ services:
 #      GOMAXPROCS: "4"
 #    mem_limit: 512m
 
-  user-service:
+  user-service1:
     image: go-land/user-service:1.0.0
     ports:
       - "8080:8080"
-#    environment:
+    environment:
+      MICRO_SERVER_ADDRESS: ":8080"
+      MICRO_REGISTRY: "mdns"
 #      CONSUL_PORT: "8500"
 #      MICRO_REGISTRY_ADDRESS: "consul:8500"
 #    depends_on:
 #      - consul
     mem_limit: 128m
+
+  user-service2:
+    image: go-land/user-service:1.0.0
+    ports:
+    - "9090:8080"
+    environment:
+      MICRO_SERVER_ADDRESS: ":8080"
+      MICRO_REGISTRY: "mdns"
+    mem_limit: 128m
+
+  user-cli:
+    image: go-land/user-cli:1.0.0
+    environment:
+      MICRO_REGISTRY: "mdns"
+    depends_on:
+      - user-service1
+      - user-service2

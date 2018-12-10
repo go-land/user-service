@@ -25,18 +25,18 @@ CURRENT_DOCKER_CONTAINERS = $(strip $(shell docker ps -a -q --filter="label=com.
 # Commands
 ########################################################################################################################
 
-.PHONY: default build proto install deploy docker_build docker_push run stop clean output
+.PHONY: default proto install build deploy docker_build docker_cli docker_push run stop clean output
 
 default: build
 
 proto:
-	protoc --proto_path=${GOPATH}/src:. --go_out=plugins=grpc:. proto/*.proto
+	protoc --proto_path=${GOPATH}/src:. --go_out=plugins=micro:. proto/*.proto
 
 install:
 	go get -t -v ./...
 
 # Build docker image
-build: proto docker_build output
+build: proto docker_build docker_cli output
 
 # Build and push Docker image
 deploy: proto docker_build docker_push output
@@ -49,6 +49,11 @@ docker_build:
 		--build-arg VERSION=$(CODE_VERSION) \
 		--build-arg SERVICE_NAME=$(SERVICE_NAME) \
 		-f docker/Dockerfile -t $(DOCKER_IMAGE):$(DOCKER_TAG) ../
+
+# Build docker image for user-cli
+docker_cli:
+	GOOS=linux GOARCH=amd64 go build -o cli/user-cli cli/*.go
+	@docker build -f cli/Dockerfile -t go-land/user-cli:1.0.0 cli
 
 docker_push:
 	# Tag image as latest

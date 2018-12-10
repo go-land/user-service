@@ -1,38 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-land/user-service/handlers"
 	"github.com/go-land/user-service/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
-)
-
-const (
-	serviceName = "user-service"
-	port        = ":8080"
+	"github.com/micro/go-micro"
 )
 
 func main() {
 
-	// Set-up our gRPC server.
-	listener, err := net.Listen("tcp", port)
+	// Create a new service. Optionally include some options here.
+	srv := micro.NewService(
+		// This name must match the package name given in your protobuf definition
+		micro.Name("user"),
+		micro.Version("latest"),
+	)
 
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
-	server := grpc.NewServer()
+	// Init will parse the command line flags.
+	srv.Init()
 
-	// Register our service with the gRPC server.
-	user.RegisterUserServiceServer(server, handlers.NewUserServiceHandler())
+	// Register handler
+	user.RegisterUserServiceHandler(srv.Server(), handlers.NewUserServiceHandler())
 
-	// Register reflection service on gRPC server.
-	reflection.Register(server)
-
-	log.Printf("%s started successfully at port %s\n", serviceName, port)
-
-	if err := server.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
+	// Run the server
+	if err := srv.Run(); err != nil {
+		fmt.Println(err)
 	}
 }

@@ -3,25 +3,16 @@ package main
 import (
 	"context"
 	"github.com/go-land/user-service/proto"
-	"google.golang.org/grpc"
+	microclient "github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/cmd"
 	"log"
-)
-
-const (
-	serviceName = "user-service"
-	address     = "localhost:8080"
 )
 
 func main() {
 
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Can't not connect: %v", err)
-	}
-	defer conn.Close()
+	cmd.Init()
 
-	client := user.NewUserServiceClient(conn)
+	client := user.NewUserServiceClient("user", microclient.DefaultClient)
 
 	addUser(client)
 
@@ -46,7 +37,7 @@ func addUser(client user.UserServiceClient) {
 	})
 
 	if err != nil {
-		log.Fatalf("Can't properly call %s.AddUser %v", serviceName, err)
+		log.Fatalf("Can't properly call AddUser %v", err)
 	}
 
 	log.Printf("Response message: %s\n", resp.Message)
@@ -64,7 +55,7 @@ func updateUser(client user.UserServiceClient) {
 	})
 
 	if err != nil {
-		log.Fatalf("Can't properly call %s.UpdateUser %v", serviceName, err)
+		log.Fatalf("Can't properly call UpdateUser %v", err)
 	}
 
 	log.Printf("Updated: %s\n", resp.Message)
@@ -79,7 +70,7 @@ func getAll(client user.UserServiceClient) {
 	resp, err := client.GetAll(context.Background(), &user.GetAllRequest{})
 
 	if err != nil {
-		log.Fatalf("Can't properly call %s %v", serviceName, err)
+		log.Fatalf("Can't properly call GetAll %v", err)
 	}
 
 	for _, singleUser := range resp.Users {
@@ -98,7 +89,7 @@ func getByName(client user.UserServiceClient) {
 	})
 
 	if getByNameErr != nil {
-		log.Fatalf("Can't properly call %s.GetByName(...) %v", serviceName, getByNameErr)
+		log.Fatalf("Can't properly call GetByName(...) %v", getByNameErr)
 	}
 
 	log.Printf("user: %s \n", singleUser)
@@ -112,7 +103,7 @@ func deleteUser(client user.UserServiceClient) {
 	resp, err := client.DeleteUser(context.Background(), &user.User{Alias: "zorro"})
 
 	if err != nil {
-		log.Fatalf("Can't properly call %s.GetByName(...) %v", serviceName, err)
+		log.Fatalf("Can't properly call GetByName(...) %v", err)
 	}
 
 	log.Printf("Deleted: " + resp.Message)
