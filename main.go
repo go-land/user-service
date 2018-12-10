@@ -6,12 +6,9 @@ import (
 	"github.com/go-land/user-service/handlers"
 	"github.com/go-land/user-service/proto"
 	"github.com/micro/go-micro"
-	"log"
 )
 
 func main() {
-
-	log.Println("Service started 123")
 
 	// Create a new service. Optionally include some options here.
 	server := micro.NewService(
