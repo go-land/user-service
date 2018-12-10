@@ -4,17 +4,14 @@
 FROM golang as go-builder
 
 ARG SERVICE_NAME
+###############################
+# Install dependencies
+###############################
+ADD $SERVICE_NAME/vendor /go/src
+RUN cd /go/src && go install -v ./...
 
 ADD $SERVICE_NAME /go/src/github.com/go-land/$SERVICE_NAME
 WORKDIR /go/src/github.com/go-land/$SERVICE_NAME
-
-# Install all dependencies
-ADD $SERVICE_NAME/docker/get-dependencies.sh get-dependencies.sh
-RUN chmod +x get-dependencies.sh
-RUN bash get-dependencies.sh
-
-#RUN go get -u github.com/golang/dep/cmd/dep
-#RUN dep init && dep ensure
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o $SERVICE_NAME .
 
