@@ -37,6 +37,7 @@ install:
 	govendor init
 	govendor fetch github.com/go-land/job-service/proto
 	govendor fetch github.com/micro/go-micro
+	govendor fetch golang.org/x/net/context
 
 # Build docker image
 build: proto docker_build docker_cli output

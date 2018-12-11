@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-land/job-service/proto"
 	"github.com/go-land/user-service/handlers"
 	"github.com/go-land/user-service/proto"
 	"github.com/micro/go-micro"
+	"log"
 )
 
 func main() {
@@ -26,6 +26,6 @@ func main() {
 
 	// Run the server
 	if err := server.Run(); err != nil {
-		fmt.Println(err)
+		log.Fatalf("Can't properly start the server: %v\n", err)
 	}
 }
