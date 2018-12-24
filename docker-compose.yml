@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.2'
 services:
 
   consul:
@@ -70,3 +70,23 @@ services:
     - user-service-1
     - user-service-2
     mem_limit: 128m
+
+  mongo:
+    image: mongo
+    ports:
+    - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 611191
+    labels:
+      com.max.namespace: "go-land"
+
+  mongo-express:
+    image: mongo-express
+    ports:
+    - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: 611191
+    labels:
+      com.max.namespace: "go-land"

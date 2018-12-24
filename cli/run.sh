@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sleep 15;
+sleep 5;
 
 echo "********************************************************"
 echo "Running user-cli"

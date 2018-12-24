@@ -38,6 +38,8 @@ install:
 	govendor fetch github.com/go-land/job-service/proto
 	govendor fetch github.com/micro/go-micro
 	govendor fetch golang.org/x/net/context
+	govendor fetch gopkg.in/mgo.v2
+	govendor fetch gopkg.in/mgo.v2/internal/sasl
 
 # Build docker image
 build: proto docker_build docker_cli output
@@ -67,6 +69,7 @@ docker_push:
 	@docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
 	@docker push $(DOCKER_IMAGE):latest
 
+# Run docker-compose in background
 run:
 	@docker-compose -f docker-compose.yml -p dev_go up
 

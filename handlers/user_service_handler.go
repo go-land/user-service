@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-land/job-service/proto"
+	"github.com/go-land/user-service/dao"
 	"github.com/go-land/user-service/proto"
 	"golang.org/x/net/context"
 	"log"
@@ -10,11 +11,14 @@ import (
 type UserServiceImpl struct {
 	users      map[string]*user.User
 	jobService job.JobServiceClient
+	userDao    dao.UserDao
 }
 
 func (service *UserServiceImpl) GetAll(ctx context.Context, request *user.GetAllRequest, resp *user.UserResponse) error {
 
 	log.Println("GetAll called")
+
+	service.userDao.GetAll()
 
 	var usersData []*user.User
 
@@ -118,7 +122,7 @@ func (service *UserServiceImpl) DeleteUser(ctx context.Context, req *user.User, 
 	return nil
 }
 
-func NewUserServiceHandler(jobClient job.JobServiceClient) *UserServiceImpl {
+func NewUserServiceHandler(jobClient job.JobServiceClient, userDao dao.UserDao) *UserServiceImpl {
 
 	userHandler := UserServiceImpl{}
 
@@ -139,6 +143,8 @@ func NewUserServiceHandler(jobClient job.JobServiceClient) *UserServiceImpl {
 		LastName:  "Stepanenko",
 		Job:       "<undefined>",
 	}
+
+	userHandler.userDao = userDao
 
 	return &userHandler
 }

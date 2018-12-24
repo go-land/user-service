@@ -3,6 +3,9 @@
 ########################################################################################################################
 FROM golang as go-builder
 
+
+RUN apt-get update && apt-get install -y libsasl2-dev
+
 ARG SERVICE_NAME
 ###############################
 # Install dependencies
